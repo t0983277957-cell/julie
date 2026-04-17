@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>天時分秒倒數計時器</title>
+  <style>
+    :root {
+      --bg-1: #f7efe4;
+      --bg-2: #dbe7d8;
+      --card: rgba(255, 255, 255, 0.84);
+      --panel: rgba(255, 255, 255, 0.76);
+      --text: #1d2a24;
+      --muted: #5f7066;
+      --accent: #d96c3f;
+      --accent-dark: #a94c29;
+      --shadow: 0 24px 60px rgba(42, 56, 48, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: "Segoe UI", "Noto Sans TC", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.92), transparent 34%),
+        linear-gradient(135deg, var(--bg-1), var(--bg-2));
+    }
+
+    .card {
+      width: min(100%, 720px);
+      padding: 32px;
+      border-radius: 28px;
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.05;
+    }
+
+    p {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .display {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 20px 0 28px;
+    }
+
+    .time-box {
+      padding: 22px 12px;
+      border-radius: 24px;
+      background: var(--panel);
+      text-align: center;
+    }
+
+    .time-value {
+      display: block;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .time-label {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .controls {
+      display: grid;
+      gap: 14px;
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid rgba(96, 112, 102, 0.2);
+      border-radius: 16px;
+      font-size: 1rem;
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .button-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      flex: 1 1 140px;
+      border: none;
+      border-radius: 16px;
+      padding: 14px 18px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .primary:hover {
+      background: var(--accent-dark);
+    }
+
+    .secondary {
+      background: #edf1ec;
+      color: var(--text);
+    }
+
+    .status {
+      min-height: 24px;
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 640px) {
+      .card {
+        padding: 24px;
+      }
+
+      .display,
+      .input-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>倒數計時器</h1>
+    <p>現在可以直接用天、時、分、秒設定倒數，按開始就能立即試用。</p>
+
+    <section class="display" aria-label="倒數顯示">
+      <div class="time-box">
+        <span class="time-value" id="daysValue">00</span>
+        <span class="time-label">天</span>
+      </div>
+      <div class="time-box">
+        <span class="time-value" id="hoursValue">00</span>
+        <span class="time-label">時</span>
+      </div>
+      <div class="time-box">
+        <span class="time-value" id="minutesValue">05</span>
+        <span class="time-label">分</span>
+      </div>
+      <div class="time-box">
+        <span class="time-value" id="secondsValue">00</span>
+        <span class="time-label">秒</span>
+      </div>
+    </section>
+
+    <section class="controls">
+      <div class="input-grid">
+        <div class="field">
+          <label for="daysInput">天</label>
+          <input id="daysInput" type="number" min="0" max="365" value="0">
+        </div>
+        <div class="field">
+          <label for="hoursInput">時</label>
+          <input id="hoursInput" type="number" min="0" max="23" value="0">
+        </div>
+        <div class="field">
+          <label for="minutesInput">分</label>
+          <input id="minutesInput" type="number" min="0" max="59" value="5">
+        </div>
+        <div class="field">
+          <label for="secondsInput">秒</label>
+          <input id="secondsInput" type="number" min="0" max="59" value="0">
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button class="primary" id="startButton">開始</button>
+        <button class="secondary" id="pauseButton">暫停</button>
+        <button class="secondary" id="resetButton">重設</button>
+      </div>
+    </section>
+
+    <div class="status" id="status">目前預設為 0 天 0 時 5 分 0 秒。</div>
+  </main>
+
+  <script>
+    const daysValue = document.getElementById("daysValue");
+    const hoursValue = document.getElementById("hoursValue");
+    const minutesValue = document.getElementById("minutesValue");
+    const secondsValue = document.getElementById("secondsValue");
+
+    const daysInput = document.getElementById("daysInput");
+    const hoursInput = document.getElementById("hoursInput");
+    const minutesInput = document.getElementById("minutesInput");
+    const secondsInput = document.getElementById("secondsInput");
+
+    const startButton = document.getElementById("startButton");
+    const pauseButton = document.getElementById("pauseButton");
+    const resetButton = document.getElementById("resetButton");
+    const status = document.getElementById("status");
+
+    let remainingSeconds = 5 * 60;
+    let timerId = null;
+
+    function pad(value) {
+      return String(value).padStart(2, "0");
+    }
+
+    function breakdown(totalSeconds) {
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      return { days, hours, minutes, seconds };
+    }
+
+    function toTotalSeconds() {
+      const days = Math.max(0, Math.min(365, Number(daysInput.value) || 0));
+      const hours = Math.max(0, Math.min(23, Number(hoursInput.value) || 0));
+      const minutes = Math.max(0, Math.min(59, Number(minutesInput.value) || 0));
+      const seconds = Math.max(0, Math.min(59, Number(secondsInput.value) || 0));
+
+      daysInput.value = days;
+      hoursInput.value = hours;
+      minutesInput.value = minutes;
+      secondsInput.value = seconds;
+
+      return days * 86400 + hours * 3600 + minutes * 60 + seconds;
+    }
+
+    function render() {
+      const { days, hours, minutes, seconds } = breakdown(remainingSeconds);
+      daysValue.textContent = pad(days);
+      hoursValue.textContent = pad(hours);
+      minutesValue.textContent = pad(minutes);
+      secondsValue.textContent = pad(seconds);
+      document.title = `${pad(days)}天 ${pad(hours)}時 ${pad(minutes)}分 ${pad(seconds)}秒`;
+    }
+
+    function syncFromInputs() {
+      remainingSeconds = toTotalSeconds();
+      render();
+
+      const { days, hours, minutes, seconds } = breakdown(remainingSeconds);
+      status.textContent = `已設定 ${days} 天 ${hours} 時 ${minutes} 分 ${seconds} 秒。`;
+    }
+
+    function stopTimer() {
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+    }
+
+    function startTimer() {
+      if (remainingSeconds <= 0) {
+        syncFromInputs();
+      }
+
+      if (remainingSeconds <= 0) {
+        status.textContent = "請先輸入一段時間再開始。";
+        return;
+      }
+
+      if (!timerId) {
+        status.textContent = "倒數中...";
+        timerId = setInterval(() => {
+          remainingSeconds -= 1;
+          render();
+
+          if (remainingSeconds <= 0) {
+            remainingSeconds = 0;
+            stopTimer();
+            render();
+            status.textContent = "時間到，可以按重設後再試一次。";
+            alert("倒數結束");
+          }
+        }, 1000);
+      }
+    }
+
+    startButton.addEventListener("click", startTimer);
+
+    pauseButton.addEventListener("click", () => {
+      stopTimer();
+      status.textContent = "已暫停。";
+    });
+
+    resetButton.addEventListener("click", () => {
+      stopTimer();
+      syncFromInputs();
+    });
+
+    [daysInput, hoursInput, minutesInput, secondsInput].forEach((input) => {
+      input.addEventListener("change", () => {
+        stopTimer();
+        syncFromInputs();
+      });
+    });
+
+    render();
+  </script>
+</body>
+</html>
